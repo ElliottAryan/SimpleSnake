@@ -21,6 +21,7 @@ namespace BoxGame
         static bool started;
         static bool ate;
         static int size;
+        static int score;
         static List<int[]> parts; //List containing all snake parts
         static async Task Main(string[] args)
         {
@@ -30,6 +31,7 @@ namespace BoxGame
             Console.Write(MapToString(map));
             int count = 0;
             size = 1;
+            score = 0;
             while (!gameOver) {
                 if (Console.KeyAvailable)
                 {
@@ -59,6 +61,8 @@ namespace BoxGame
                     await Task.Delay(200);
                 }
             }
+            Console.Clear();
+            Console.WriteLine("Game over! Your score is: " + score);
             
         }
 
@@ -124,6 +128,8 @@ namespace BoxGame
                 parts.RemoveAt(parts.Count - 1);
             }
             else {
+                size++;
+                score += 100;
                 ate = false;
             }
             
@@ -139,7 +145,7 @@ namespace BoxGame
 
             Random random = new Random();
             int randomX = random.Next(1, map.GetLength(0) - 1);
-            int randomY = random.Next(1, map.GetLength(1) - 1); //Place fruit in random spot
+            int randomY = random.Next(1, map.GetLength(1) - 1); //Place fruit in random spots
             if (map[randomX, randomY] != "X")
             {
                 map[randomX, randomY] = "@";
