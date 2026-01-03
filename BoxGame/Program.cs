@@ -12,7 +12,7 @@ namespace BoxGame
     internal class Program
     {
 
-        static string[,] map;
+        static string[,] map; //This will contain all the tile symbols of the map
         static int playerX;
         static int playerY;
         static int xDirection;
@@ -20,7 +20,8 @@ namespace BoxGame
         static bool gameOver;
         static bool started;
         static bool ate;
-        static List<int[]> parts;
+        static int size;
+        static List<int[]> parts; //List containing all snake parts
         static async Task Main(string[] args)
         {
             Console.CursorVisible = false;
@@ -28,6 +29,7 @@ namespace BoxGame
             MapInit(20);
             Console.Write(MapToString(map));
             int count = 0;
+            size = 1;
             while (!gameOver) {
                 if (Console.KeyAvailable)
                 {
@@ -42,9 +44,6 @@ namespace BoxGame
 
                         case ConsoleKey.S: xDirection = 0; yDirection = 1; started = true; break;
 
-                        default: ate = true; break;
-
-
                     }
                 }
                 if (started)
@@ -52,12 +51,12 @@ namespace BoxGame
                     MovePlayer(xDirection, yDirection);
                     count++;
                     if (count > 20) {
-                        count = 0;
+                        count = 0; //Consistent fruit spawning
                         SpawnFruit();
                     }
                     Console.SetCursorPosition(0, 0);
                     Console.Write(MapToString(map));
-                    await Task.Delay(100);
+                    await Task.Delay(200);
                 }
             }
             
@@ -65,21 +64,21 @@ namespace BoxGame
 
         static void MapInit(int mapSize) {
             map = new string[mapSize, mapSize];
-            for (int y = 0; y < map.GetLength(0); y++) {
-                for (int x = 0; x < map.GetLength(1); x++) {
+            for (int y = 0; y < map.GetLength(1); y++) {
+                for (int x = 0; x < map.GetLength(0); x++) {
                     map[x, y] = " ";
-                    if (y == 0 || y == map.GetLength(0) - 1)
+                    if (y == 0 || y == map.GetLength(1) - 1)
                     {
-                        map[x, y] = "O";
+                        map[x, y] = "O"; //Populate the initial map
                     }
-                    if (x == 0 || x == map.GetLength(1) - 1) {
+                    if (x == 0 || x == map.GetLength(0) - 1) {
                         map[x, y] = "O";
                     }
                 }
             }
             Random random = new Random();
-            playerX = random.Next(5, map.GetLength(1) - 6);
-            playerY = random.Next(5, map.GetLength(0) - 6);
+            playerX = random.Next(2, map.GetLength(1) - 3); //Place player on random spot on map
+            playerY = random.Next(2, map.GetLength(0) - 3);
             parts.Add(new int[] { playerX, playerY});
         }
 
@@ -87,7 +86,7 @@ namespace BoxGame
             StringBuilder finalString = new StringBuilder();
             for (int y = 0; y < map.GetLength(0); y++) {
                 for (int x = 0; x < map.GetLength(1); x++) {
-                    finalString.Append(map[x, y]);
+                    finalString.Append(map[x, y]); //Convert nested array to string so we can display it in the console
                 }
                 finalString.AppendLine();
             }
@@ -96,16 +95,8 @@ namespace BoxGame
 
         static void MovePlayer(int x,int y) {
 
-            if (xDirection == x * -1 && started) {
-                //return;
-            }
-            if (yDirection == y * -1 && started)
-            {
-                //return;
-            }
             xDirection = x;
             yDirection = y;
-
             if (playerX + xDirection > map.GetLength(0) - 2 || playerX + xDirection < 1)
             {
                 gameOver = true;
@@ -113,7 +104,7 @@ namespace BoxGame
             }
             if (playerY + yDirection > map.GetLength(0) - 2 || playerY + yDirection < 1)
             {
-                gameOver = true;
+                gameOver = true; //Game over if you hit the boundary or yourself
                 return;
             }
             if (map[playerX + xDirection, playerY + yDirection] == "X") {
@@ -129,7 +120,7 @@ namespace BoxGame
             parts.Insert(0, new int[] {playerX,playerY});
             if (!ate)
             {
-                map[parts[parts.Count - 1][0], parts[parts.Count - 1][1]] = " ";
+                map[parts[parts.Count - 1][0], parts[parts.Count - 1][1]] = " "; //Insert at the head and delete at the tail, do not delete tail if you found food.
                 parts.RemoveAt(parts.Count - 1);
             }
             else {
@@ -138,7 +129,7 @@ namespace BoxGame
             
             foreach (int[] part in parts)
             {
-                map[part[0], part[1]] = "X";
+                map[part[0], part[1]] = "X"; //Populate map with snake parts
             }
             
             
@@ -148,7 +139,7 @@ namespace BoxGame
 
             Random random = new Random();
             int randomX = random.Next(1, map.GetLength(0) - 1);
-            int randomY = random.Next(1, map.GetLength(1) - 1);
+            int randomY = random.Next(1, map.GetLength(1) - 1); //Place fruit in random spot
             if (map[randomX, randomY] != "X")
             {
                 map[randomX, randomY] = "@";
