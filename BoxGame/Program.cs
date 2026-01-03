@@ -27,6 +27,7 @@ namespace BoxGame
             parts = new List<int[]>();
             MapInit(20);
             Console.Write(MapToString(map));
+            int count = 0;
             while (!gameOver) {
                 if (Console.KeyAvailable)
                 {
@@ -49,6 +50,11 @@ namespace BoxGame
                 if (started)
                 {
                     MovePlayer(xDirection, yDirection);
+                    count++;
+                    if (count > 20) {
+                        count = 0;
+                        SpawnFruit();
+                    }
                     Console.SetCursorPosition(0, 0);
                     Console.Write(MapToString(map));
                     await Task.Delay(100);
@@ -100,12 +106,12 @@ namespace BoxGame
             xDirection = x;
             yDirection = y;
 
-            if (playerX + xDirection > map.GetLength(0) - 1 || playerX + xDirection < 1)
+            if (playerX + xDirection > map.GetLength(0) - 2 || playerX + xDirection < 1)
             {
                 gameOver = true;
                 return;
             }
-            if (playerY + yDirection > map.GetLength(0) - 1 || playerY + yDirection < 1)
+            if (playerY + yDirection > map.GetLength(0) - 2 || playerY + yDirection < 1)
             {
                 gameOver = true;
                 return;
@@ -113,6 +119,10 @@ namespace BoxGame
             if (map[playerX + xDirection, playerY + yDirection] == "X") {
                 gameOver = true;
                 return;
+            }
+            if (map[playerX + xDirection, playerY + yDirection] == "@")
+            {
+                ate = true;
             }
             playerX = playerX + xDirection;
             playerY = playerY + yDirection;
@@ -134,7 +144,17 @@ namespace BoxGame
             
         }
 
-        static void SpawnFruit() { }
+        static void SpawnFruit() {
+
+            Random random = new Random();
+            int randomX = random.Next(1, map.GetLength(0) - 1);
+            int randomY = random.Next(1, map.GetLength(1) - 1);
+            if (map[randomX, randomY] != "X")
+            {
+                map[randomX, randomY] = "@";
+            }
+        
+        }
 
 
 
