@@ -18,10 +18,12 @@ namespace BoxGame
         static int xDirection;
         static int yDirection;
         static bool gameOver;
+        static bool started;
         static List<int[]> parts;
         static async Task Main(string[] args)
         {
             Console.CursorVisible = false;
+            parts = new List<int[]>();
             MapInit(20);
             Console.Write(MapToString(map));
             while (!gameOver) {
@@ -30,19 +32,22 @@ namespace BoxGame
                     var key = Console.ReadKey(true);
                     switch (key.Key)
                     {
-                        case ConsoleKey.W: xDirection = 0; yDirection = -1; break;
+                        case ConsoleKey.W: xDirection = 0; yDirection = -1; started = true; break;
 
-                        case ConsoleKey.A: xDirection = -1; yDirection = 0; break;
+                        case ConsoleKey.A: xDirection = -1; yDirection = 0; started = true; break;
 
-                        case ConsoleKey.D: xDirection = 1; yDirection = 0; break;
+                        case ConsoleKey.D: xDirection = 1; yDirection = 0; started = true; break;
 
-                        case ConsoleKey.S: xDirection = 0; yDirection = 1; break;
+                        case ConsoleKey.S: xDirection = 0; yDirection = 1; started = true; break;
                     }
                 }
-                MovePlayer(xDirection, yDirection);
-                Console.SetCursorPosition(0, 0);
-                Console.Write(MapToString(map));
-                await Task.Delay(100);    
+                if (started)
+                {
+                    MovePlayer(xDirection, yDirection);
+                    Console.SetCursorPosition(0, 0);
+                    Console.Write(MapToString(map));
+                    await Task.Delay(100);
+                }
             }
             
         }
@@ -62,9 +67,9 @@ namespace BoxGame
                 }
             }
             Random random = new Random();
-            playerX = random.Next(1, map.GetLength(1) - 2);
-            playerY = random.Next(1, map.GetLength(0) - 2);
-            map[playerX, playerY] = "X";
+            playerX = random.Next(2, map.GetLength(1) - 3);
+            playerY = random.Next(2, map.GetLength(0) - 3);
+            parts.Add(new int[] { playerX, playerY});
         }
 
         static string MapToString(string[,] map) {
@@ -82,22 +87,27 @@ namespace BoxGame
         static void MovePlayer(int x,int y) {
             xDirection = x;
             yDirection = y;
-            if (playerX + xDirection > map.GetLength(0) - 1 || playerX + xDirection < 1) {
-                gameOver = true;
-                return;
-            }
-            if (playerY + yDirection > map.GetLength(0) - 1 || playerY + yDirection < 1)
+            if (playerX + xDirection > map.GetLength(0) - 1 || playerX + xDirection < 1)
             {
                 gameOver = true;
                 return;
             }
-            map[playerX, playerY] = " ";
-            map[playerX + xDirection, playerY + yDirection] = "X";
-            foreach (int[] part in parts) { 
-                
+            if (playerY + yDirection > map.GetLength(0) - 1 || playerY + yDirection < 0)
+            {
+                gameOver = true;
+                return;
+            }
+            parts.Insert(0, new int[] {playerX,playerY});
+            map[parts[parts.Count - 1][0],parts[parts.Count - 1][1]] = " ";
+            parts.RemoveAt(parts.Count - 1);
+            foreach (int[] part in parts)
+            {
+                map[part[0], part[1]] = "X";
             }
             playerX = playerX + xDirection;
             playerY = playerY + yDirection;
+            
         }
+
     }
 }
