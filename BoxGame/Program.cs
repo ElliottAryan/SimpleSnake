@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -14,22 +15,34 @@ namespace BoxGame
         static string[,] map;
         static int playerX;
         static int playerY;
-        static void Main(string[] args)
+        static int xDirection;
+        static int yDirection;
+        static bool gameOver;
+        static List<int[]> parts;
+        static async Task Main(string[] args)
         {
+            Console.CursorVisible = false;
             MapInit(20);
             Console.Write(MapToString(map));
-            while (true) {
-                var key = Console.ReadKey();
-                switch (key.Key) {
-                    case ConsoleKey.W: MovePlayer(0,-1); Console.Clear(); Console.Write(MapToString(map)); break;
+            while (!gameOver) {
+                if (Console.KeyAvailable)
+                {
+                    var key = Console.ReadKey(true);
+                    switch (key.Key)
+                    {
+                        case ConsoleKey.W: xDirection = 0; yDirection = -1; break;
 
-                    case ConsoleKey.A: MovePlayer(-1,0); Console.Clear(); Console.Write(MapToString(map)); break;
+                        case ConsoleKey.A: xDirection = -1; yDirection = 0; break;
 
-                    case ConsoleKey.D: MovePlayer(1,0); Console.Clear(); Console.Write(MapToString(map)); break;
+                        case ConsoleKey.D: xDirection = 1; yDirection = 0; break;
 
-                    case ConsoleKey.S: MovePlayer(0,1); Console.Clear(); Console.Write(MapToString(map)); break;
+                        case ConsoleKey.S: xDirection = 0; yDirection = 1; break;
+                    }
                 }
-                
+                MovePlayer(xDirection, yDirection);
+                Console.SetCursorPosition(0, 0);
+                Console.Write(MapToString(map));
+                await Task.Delay(100);    
             }
             
         }
@@ -67,15 +80,24 @@ namespace BoxGame
         }
 
         static void MovePlayer(int x,int y) {
-            if (playerX + x < map.GetLength(1) - 1 && playerX + x >= 1) {
-                if (playerY + y < map.GetLength(0) - 1 && playerY + y >= 1)
-                {
-                    map[playerX, playerY] = " ";
-                    map[playerX + x, playerY + y] = "X";
-                    playerX = playerX + x;
-                    playerY = playerY + y;
-                }
+            xDirection = x;
+            yDirection = y;
+            if (playerX + xDirection > map.GetLength(0) - 1 || playerX + xDirection < 1) {
+                gameOver = true;
+                return;
             }
+            if (playerY + yDirection > map.GetLength(0) - 1 || playerY + yDirection < 1)
+            {
+                gameOver = true;
+                return;
+            }
+            map[playerX, playerY] = " ";
+            map[playerX + xDirection, playerY + yDirection] = "X";
+            foreach (int[] part in parts) { 
+                
+            }
+            playerX = playerX + xDirection;
+            playerY = playerY + yDirection;
         }
     }
 }
