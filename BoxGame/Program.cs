@@ -63,6 +63,7 @@ namespace BoxGame
             }
             Console.Clear();
             Console.WriteLine("Game over! Your score is: " + score);
+            Console.ReadLine();
             
         }
 
