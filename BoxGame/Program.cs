@@ -14,7 +14,8 @@ namespace BoxGame
         static void Main(string[] args)
         {
             MapInit(20);
-            String test = MapToString(map);
+            Console.WriteLine(MapToString(map));
+            
         }
 
         static void MapInit(int mapSize) {
@@ -31,10 +32,22 @@ namespace BoxGame
                     }
                 }
             }
+            Random random = new Random();
+            int playerX = random.Next(1, map.GetLength(1) - 2);
+            int playerY = random.Next(1, map.GetLength(0) - 2);
+            map[playerX, playerY] = "X";
         }
 
         static string MapToString(string[,] map) {
-            
+            StringBuilder finalString = new StringBuilder();
+            int count = 0;
+            for (int y = 0; y < map.GetLength(0); y++) {
+                for (int x = 0; x < map.GetLength(1); x++) {
+                    finalString.Append(map[x, y]);
+                }
+                finalString.AppendLine();
+            }
+            return finalString.ToString();
         }
     }
 }
