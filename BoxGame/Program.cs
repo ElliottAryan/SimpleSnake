@@ -19,6 +19,7 @@ namespace BoxGame
         static int yDirection;
         static bool gameOver;
         static bool started;
+        static bool ate;
         static List<int[]> parts;
         static async Task Main(string[] args)
         {
@@ -39,6 +40,10 @@ namespace BoxGame
                         case ConsoleKey.D: xDirection = 1; yDirection = 0; started = true; break;
 
                         case ConsoleKey.S: xDirection = 0; yDirection = 1; started = true; break;
+
+                        default: ate = true; break;
+
+
                     }
                 }
                 if (started)
@@ -67,14 +72,13 @@ namespace BoxGame
                 }
             }
             Random random = new Random();
-            playerX = random.Next(2, map.GetLength(1) - 3);
-            playerY = random.Next(2, map.GetLength(0) - 3);
+            playerX = random.Next(5, map.GetLength(1) - 6);
+            playerY = random.Next(5, map.GetLength(0) - 6);
             parts.Add(new int[] { playerX, playerY});
         }
 
         static string MapToString(string[,] map) {
             StringBuilder finalString = new StringBuilder();
-            int count = 0;
             for (int y = 0; y < map.GetLength(0); y++) {
                 for (int x = 0; x < map.GetLength(1); x++) {
                     finalString.Append(map[x, y]);
@@ -85,29 +89,54 @@ namespace BoxGame
         }
 
         static void MovePlayer(int x,int y) {
+
+            if (xDirection == x * -1 && started) {
+                //return;
+            }
+            if (yDirection == y * -1 && started)
+            {
+                //return;
+            }
             xDirection = x;
             yDirection = y;
+
             if (playerX + xDirection > map.GetLength(0) - 1 || playerX + xDirection < 1)
             {
                 gameOver = true;
                 return;
             }
-            if (playerY + yDirection > map.GetLength(0) - 1 || playerY + yDirection < 0)
+            if (playerY + yDirection > map.GetLength(0) - 1 || playerY + yDirection < 1)
             {
                 gameOver = true;
                 return;
             }
+            if (map[playerX + xDirection, playerY + yDirection] == "X") {
+                gameOver = true;
+                return;
+            }
+            playerX = playerX + xDirection;
+            playerY = playerY + yDirection;
             parts.Insert(0, new int[] {playerX,playerY});
-            map[parts[parts.Count - 1][0],parts[parts.Count - 1][1]] = " ";
-            parts.RemoveAt(parts.Count - 1);
+            if (!ate)
+            {
+                map[parts[parts.Count - 1][0], parts[parts.Count - 1][1]] = " ";
+                parts.RemoveAt(parts.Count - 1);
+            }
+            else {
+                ate = false;
+            }
+            
             foreach (int[] part in parts)
             {
                 map[part[0], part[1]] = "X";
             }
-            playerX = playerX + xDirection;
-            playerY = playerY + yDirection;
+            
             
         }
+
+        static void SpawnFruit() { }
+
+
 
     }
 }
