@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,10 +12,25 @@ namespace BoxGame
     {
 
         static string[,] map;
+        static int playerX;
+        static int playerY;
         static void Main(string[] args)
         {
             MapInit(20);
-            Console.WriteLine(MapToString(map));
+            Console.Write(MapToString(map));
+            while (true) {
+                var key = Console.ReadKey();
+                switch (key.Key) {
+                    case ConsoleKey.W: MovePlayer(0,-1); Console.Clear(); Console.Write(MapToString(map)); break;
+
+                    case ConsoleKey.A: MovePlayer(-1,0); Console.Clear(); Console.Write(MapToString(map)); break;
+
+                    case ConsoleKey.D: MovePlayer(1,0); Console.Clear(); Console.Write(MapToString(map)); break;
+
+                    case ConsoleKey.S: MovePlayer(0,1); Console.Clear(); Console.Write(MapToString(map)); break;
+                }
+                
+            }
             
         }
 
@@ -33,8 +49,8 @@ namespace BoxGame
                 }
             }
             Random random = new Random();
-            int playerX = random.Next(1, map.GetLength(1) - 2);
-            int playerY = random.Next(1, map.GetLength(0) - 2);
+            playerX = random.Next(1, map.GetLength(1) - 2);
+            playerY = random.Next(1, map.GetLength(0) - 2);
             map[playerX, playerY] = "X";
         }
 
@@ -48,6 +64,18 @@ namespace BoxGame
                 finalString.AppendLine();
             }
             return finalString.ToString();
+        }
+
+        static void MovePlayer(int x,int y) {
+            if (playerX + x < map.GetLength(1) - 1 && playerX + x >= 1) {
+                if (playerY + y < map.GetLength(0) - 1 && playerY + y >= 1)
+                {
+                    map[playerX, playerY] = " ";
+                    map[playerX + x, playerY + y] = "X";
+                    playerX = playerX + x;
+                    playerY = playerY + y;
+                }
+            }
         }
     }
 }
